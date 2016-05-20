@@ -17,7 +17,7 @@
 
 void *aluno(void *_id) {
     int id = (int) _id;
-    print("Sou o aluno %d\n", id);
+    printf("Sou o aluno %d\n", id);
     /* Define o tempo Tt := tempo até chegar, 0 <= Tt <= t */
     /* Define o tempo Tr := tempo que ficará na festa 0 <= Tr <= r */
     /* Espera Tt */
@@ -33,7 +33,7 @@ void *aluno(void *_id) {
 }
 
 void *seguranca(void *param) {
-    print("Sou o segurança %d\n", id);
+    printf("Sou o segurança\n");
     /* Define o tempo Tt := tempo até chegar, 0 <= Tt <= t */
     /* Espera Tt */
     /* Enquanto o número de alunos que já participaram da festa < n */
@@ -99,10 +99,10 @@ int main(int argc, char const *argv[])
     }
 
     pthread_t threadSeguranca;
-    falhou = pthread_create(&(threadsAlunos[i]),  /* pthread_t* tid */                           
+    falhou = pthread_create(&threadSeguranca, /* pthread_t* tid */                           
                         NULL,                 /* const pthread_attr_t* attr */ 
                         (void *) seguranca,   /* void* (*start_routine)(void *)  */  
-                        NULL);           /* void *arg. */  
+                        NULL);                /* void *arg. */  
 
     if (falhou) {
         printf("Ocorreu um erro ao criar a thread do segurança!\n");
