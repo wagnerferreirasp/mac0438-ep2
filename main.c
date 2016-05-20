@@ -14,14 +14,25 @@
 #include <stdio.h>   /* printf */
 #include <stdlib.h>  /* EXIT_SUCCESS, EXIT_FAILURE, atoi, malloc, NULL */
 #include <pthread.h> /* pthread_t, pthread_create, pthread_join */
+#include <unistd.h>  /* usleep */
+
+pthread_mutex_t mutex;
+int n, p, t, r, s;
+
+int geraNumeroAleatorioDeZeroA(int limite) {
+    return (rand() % limite);
+}
 
 void *aluno(void *_id) {
     int id = (int) _id;
-    printf("Sou o aluno %d\n", id);
     /* Define o tempo Tt := tempo até chegar, 0 <= Tt <= t */
+    int tempoDeEspera = geraNumeroAleatorioDeZeroA(t);
     /* Define o tempo Tr := tempo que ficará na festa 0 <= Tr <= r */
-    /* Espera Tt */
+    int tempoDeFesta = geraNumeroAleatorioDeZeroA(r);
+    /* Espera Tt, usleep faz a thread dormir por 'x' microsegundos*/
+    usleep(tempoDeEspera * 1000);
     /* Avisa que está na porta */
+    printf("Aluno %d na porta.\n", id);
     /* Se o segurança está na sala   */
     /*     espera ele sair */
     /* Avisa que está na festa */
@@ -54,7 +65,7 @@ void *seguranca(void *param) {
 
 void mostraUso() {
     printf("Uso:\n"); 
-    printf(" ./ep2 <convidados> <minimo-alunos> <intervalo> <tempo_maximo>\n");
+    printf(" ./ep2 <convidados> <minimo-alunos> <intervalo> <tempo-festa> <tempo-ronda>\n");
     printf("Onde:\n");
     printf("       <convidados>: numero total de convidados para a festa\n");
     printf("    <minimo-alunos>: numero minimo de alunos na festa para o seguranca esvaziar a sala\n");
@@ -70,11 +81,12 @@ int main(int argc, char const *argv[])
         exit(EXIT_FAILURE);
     }
 
-    int n = atoi(argv[1]); /*    <convidados> */
-    int p = atoi(argv[2]); /* <minimo-alunos> */
-    int t = atoi(argv[3]); /*     <intervalo> */
-    int r = atoi(argv[4]); /*   <tempo-festa> */
-    int s = atoi(argv[5]); /*   <tempo-ronda> */
+    n = atoi(argv[1]); /*    <convidados> */
+    p = atoi(argv[2]); /* <minimo-alunos> */
+    t = atoi(argv[3]); /*     <intervalo> */
+    r = atoi(argv[4]); /*   <tempo-festa> */
+    s = atoi(argv[5]); /*   <tempo-ronda> */
+    srand (time(NULL));
 
     if (t < 0 || r < 0 || s < 0) {
         printf("Atenção! Os valores de <intervalo>, <tempo-festa> e <tempo-ronda> não devem ser negativos\n");
@@ -85,6 +97,13 @@ int main(int argc, char const *argv[])
     pthread_t *threadsAlunos = (pthread_t*) malloc(n * sizeof(pthread_t));
 
     int i, falhou = 0;
+
+    falhou = pthread_mutex_init(&mutex, NULL);
+    if (falhou) {
+        printf("Ocorreu um erro ao inicializar o mutex\n");
+        exit(EXIT_FAILURE);
+    }
+
     for (i = 0; i < n; i++)
     {
         falhou = pthread_create(&(threadsAlunos[i]),  /* pthread_t* tid */                           
@@ -109,6 +128,9 @@ int main(int argc, char const *argv[])
         exit(EXIT_FAILURE);
     }
 
+    for (i = 0; i < n; i++) {
+        pthread_join(threadsAlunos[i], NULL);
+    }
     pthread_join(threadSeguranca, NULL);
     printf("Término de festa!\n");
 
