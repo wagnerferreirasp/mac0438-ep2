@@ -105,6 +105,9 @@ int main(int argc, char const *argv[])
     /* Cria uma thread para representar o segurança */
     pthread_t threadSeguranca;
 
+    /* Inicializa uma fila para representar a ordem de chegada dos alunos */
+    filaDeAlunos = malloc(n * sizeof(int));
+
     /* Variáveis para índice e valores de retorno */
     int i, falhou = 0;
 
