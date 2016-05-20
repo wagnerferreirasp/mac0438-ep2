@@ -18,6 +18,7 @@
 
 pthread_mutex_t mutex;
 int n, p, t, r, s;
+int *filaDeAlunos;
 
 int geraNumeroAleatorioDeZeroA(int limite) {
     return (rand() % limite);
@@ -33,7 +34,8 @@ void *aluno(void *_id) {
     usleep(tempoDeEspera * 1000);
     /* Avisa que está na porta */
     printf("Aluno %d na porta.\n", id);
-    /* Se o segurança está na sala   */
+    /* Espera até a porta estar disponível */
+
     /*     espera ele sair */
     /* Avisa que está na festa */
     /* Incrementa o número de alunos na sala */
@@ -76,11 +78,13 @@ void mostraUso() {
 
 int main(int argc, char const *argv[])
 {
+    /* Verifica se o usuário digitou 5 parâmetros */
     if (argc != 6) {
         mostraUso();
         exit(EXIT_FAILURE);
     }
 
+    /* Atribuição dos parâmetros */
     n = atoi(argv[1]); /*    <convidados> */
     p = atoi(argv[2]); /* <minimo-alunos> */
     t = atoi(argv[3]); /*     <intervalo> */
@@ -88,22 +92,30 @@ int main(int argc, char const *argv[])
     s = atoi(argv[5]); /*   <tempo-ronda> */
     srand (time(NULL));
 
+    /* Verifica se os parâmetros são valores válidos */
     if (t < 0 || r < 0 || s < 0) {
         printf("Atenção! Os valores de <intervalo>, <tempo-festa> e <tempo-ronda> não devem ser negativos\n");
         mostraUso();
         exit(EXIT_FAILURE);
     }
 
+    /* Cria vetor de threads para representar os alunos */
     pthread_t *threadsAlunos = (pthread_t*) malloc(n * sizeof(pthread_t));
 
+    /* Cria uma thread para representar o segurança */
+    pthread_t threadSeguranca;
+
+    /* Variáveis para índice e valores de retorno */
     int i, falhou = 0;
 
+    /* Inicialização do Mutex */
     falhou = pthread_mutex_init(&mutex, NULL);
     if (falhou) {
         printf("Ocorreu um erro ao inicializar o mutex\n");
         exit(EXIT_FAILURE);
     }
 
+    /* Inicialização das theads dos alunos */
     for (i = 0; i < n; i++)
     {
         falhou = pthread_create(&(threadsAlunos[i]),  /* pthread_t* tid */                           
@@ -117,7 +129,7 @@ int main(int argc, char const *argv[])
         }
     }
 
-    pthread_t threadSeguranca;
+    /* Inicialização da thread do segurança */
     falhou = pthread_create(&threadSeguranca, /* pthread_t* tid */                           
                         NULL,                 /* const pthread_attr_t* attr */ 
                         (void *) seguranca,   /* void* (*start_routine)(void *)  */  
@@ -128,10 +140,13 @@ int main(int argc, char const *argv[])
         exit(EXIT_FAILURE);
     }
 
+    /* Espera as threads dos alunos e do segurança terminarem */
     for (i = 0; i < n; i++) {
         pthread_join(threadsAlunos[i], NULL);
     }
     pthread_join(threadSeguranca, NULL);
+
+    /* Termina a festa */
     printf("Término de festa!\n");
 
     exit(EXIT_SUCCESS);
