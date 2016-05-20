@@ -17,7 +17,7 @@
 
 void *aluno(void *_id) {
     int id = (int) _id;
-    
+    print("Sou o aluno %d\n", id);
     /* Define o tempo Tt := tempo até chegar, 0 <= Tt <= t */
     /* Define o tempo Tr := tempo que ficará na festa 0 <= Tr <= r */
     /* Espera Tt */
@@ -33,6 +33,7 @@ void *aluno(void *_id) {
 }
 
 void *seguranca(void *param) {
+    print("Sou o segurança %d\n", id);
     /* Define o tempo Tt := tempo até chegar, 0 <= Tt <= t */
     /* Espera Tt */
     /* Enquanto o número de alunos que já participaram da festa < n */
@@ -64,7 +65,6 @@ void mostraUso() {
 
 int main(int argc, char const *argv[])
 {
-    recebeParametros();
     if (argc != 6) {
         mostraUso();
         exit(EXIT_FAILURE);
@@ -84,32 +84,32 @@ int main(int argc, char const *argv[])
 
     pthread_t *threadsAlunos = (pthread_t*) malloc(n * sizeof(pthread_t));
 
-    int i, ok = 1;
+    int i, falhou = 0;
     for (i = 0; i < n; i++)
     {
-        ok = pthread_create(&(threadsAlunos[i]),  /* pthread_t* tid */                           
+        falhou = pthread_create(&(threadsAlunos[i]),  /* pthread_t* tid */                           
                         NULL,                     /* const pthread_attr_t* attr */ 
                         (void *) aluno,           /* void* (*start_routine)(void *)  */  
                         (void*) i);               /* void *arg. */      
         /* Obs: Transformando i em void* diretamente, estamos passando o ponteiro de valor i à função aluno */
-        if (!ok) {
+        if (falhou) {
             printf("Ocorreu um erro ao criar as threads dos alunos!\n");
             exit(EXIT_FAILURE);
         }
     }
 
     pthread_t threadSeguranca;
-    ok = pthread_create(&(threadsAlunos[i]),  /* pthread_t* tid */                           
+    falhou = pthread_create(&(threadsAlunos[i]),  /* pthread_t* tid */                           
                         NULL,                 /* const pthread_attr_t* attr */ 
                         (void *) seguranca,   /* void* (*start_routine)(void *)  */  
                         NULL);           /* void *arg. */  
 
-    if (!ok) {
+    if (falhou) {
         printf("Ocorreu um erro ao criar a thread do segurança!\n");
         exit(EXIT_FAILURE);
     }
 
-    pthread_join(threadSeguranca);
+    pthread_join(threadSeguranca, NULL);
     printf("Término de festa!\n");
 
     exit(EXIT_SUCCESS);
