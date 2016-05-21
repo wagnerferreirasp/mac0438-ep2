@@ -130,7 +130,6 @@ int main(int argc, char const *argv[])
                         NULL,                     /* const pthread_attr_t* attr */ 
                         aluno,           /* void* (*start_routine)(void *)  */  
                         idAluno);               /* void *arg. */      
-        /* Obs: Transformando i em void* diretamente, estamos passando o ponteiro de valor i à função aluno */
         if (falhou) {
             printf("Ocorreu um erro ao criar as threads dos alunos!\n");
             exit(EXIT_FAILURE);
