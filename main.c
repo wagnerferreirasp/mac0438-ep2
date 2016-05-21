@@ -25,7 +25,7 @@ int geraNumeroAleatorioDeZeroA(int limite) {
 }
 
 void *aluno(void *_id) {
-    int id = (int) _id;
+    int id = *((int*)_id); /* valor apontado por _id é o id que queremos */
     /* Define o tempo Tt := tempo até chegar, 0 <= Tt <= t */
     int tempoDeEspera = geraNumeroAleatorioDeZeroA(t);
     /* Define o tempo Tr := tempo que ficará na festa 0 <= Tr <= r */
@@ -108,8 +108,8 @@ int main(int argc, char const *argv[])
     /* Inicializa uma fila para representar a ordem de chegada dos alunos */
     filaDeAlunos = malloc(n * sizeof(int));
 
-    /* Variáveis para índice e valores de retorno */
-    int i, falhou = 0;
+    /* Variáveis para índice, valores de retorno e id do aluno passado à thread */
+    int i, falhou, *idAluno;
 
     /* Inicialização do Mutex */
     falhou = pthread_mutex_init(&mutex, NULL);
@@ -118,13 +118,18 @@ int main(int argc, char const *argv[])
         exit(EXIT_FAILURE);
     }
 
+
     /* Inicialização das theads dos alunos */
     for (i = 0; i < n; i++)
     {
+        /* alocando novo ponteiro para um inteiro, a ser passado para a thread do aluno */
+        idAluno = (int*) malloc(sizeof(int*)); 
+        *idAluno = i;
+
         falhou = pthread_create(&(threadsAlunos[i]),  /* pthread_t* tid */                           
                         NULL,                     /* const pthread_attr_t* attr */ 
                         (void *) aluno,           /* void* (*start_routine)(void *)  */  
-                        (void*) i);               /* void *arg. */      
+                        idAluno);               /* void *arg. */      
         /* Obs: Transformando i em void* diretamente, estamos passando o ponteiro de valor i à função aluno */
         if (falhou) {
             printf("Ocorreu um erro ao criar as threads dos alunos!\n");
