@@ -120,7 +120,7 @@ int main(int argc, char const *argv[])
 
 
     /* Inicialização das theads dos alunos */
-    for (i = 0; i < n; i++)
+    for (i = 1; i <= n; i++)
     {
         /* alocando novo ponteiro para um inteiro, a ser passado para a thread do aluno */
         idAluno = (int*) malloc(sizeof(int*)); 
@@ -128,7 +128,7 @@ int main(int argc, char const *argv[])
 
         falhou = pthread_create(&(threadsAlunos[i]),  /* pthread_t* tid */                           
                         NULL,                     /* const pthread_attr_t* attr */ 
-                        (void *) aluno,           /* void* (*start_routine)(void *)  */  
+                        aluno,           /* void* (*start_routine)(void *)  */  
                         idAluno);               /* void *arg. */      
         /* Obs: Transformando i em void* diretamente, estamos passando o ponteiro de valor i à função aluno */
         if (falhou) {
@@ -140,7 +140,7 @@ int main(int argc, char const *argv[])
     /* Inicialização da thread do segurança */
     falhou = pthread_create(&threadSeguranca, /* pthread_t* tid */                           
                         NULL,                 /* const pthread_attr_t* attr */ 
-                        (void *) seguranca,   /* void* (*start_routine)(void *)  */  
+                        seguranca,   /* void* (*start_routine)(void *)  */  
                         NULL);                /* void *arg. */  
 
     if (falhou) {
