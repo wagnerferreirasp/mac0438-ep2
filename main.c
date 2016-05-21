@@ -12,9 +12,12 @@
 /*******************************************************************/
 
 #include <stdio.h>   /* printf */
-#include <stdlib.h>  /* EXIT_SUCCESS, EXIT_FAILURE, atoi, malloc, NULL */
-#include <pthread.h> /* pthread_t, pthread_create, pthread_join */
-#include <unistd.h>  /* usleep */
+#include <stdlib.h>  /* EXIT_SUCCESS, EXIT_FAILURE, atoi, malloc, NULL, rand, srand */
+#include <pthread.h> /* pthread_t, pthread_create, pthread_join, pthread_mutex_t */
+#include <time.h>   /* time_t, time, nanosleep, struct timespec */
+
+/* Conversão de milissegundos para nanossegundos: 1 ms = 1000000 ns */
+#define MILI_PARA_NANO 1000000
 
 pthread_mutex_t mutex;
 int n, p, t, r, s;
@@ -24,14 +27,21 @@ int geraNumeroAleatorioDeZeroA(int limite) {
     return (rand() % limite);
 }
 
+void esperaEmMilissegundos(long ms) {
+    struct timespec tempo;
+    tempo.tv_sec = (time_t) (ms / 1000);
+    tempo.tv_nsec = (long) (ms - tempo.tv_sec * 1000) * MILI_PARA_NANO;
+    nanosleep(&tempo, NULL);
+}
+
 void *aluno(void *_id) {
     int id = *((int*)_id); /* valor apontado por _id é o id que queremos */
     /* Define o tempo Tt := tempo até chegar, 0 <= Tt <= t */
-    int tempoDeEspera = geraNumeroAleatorioDeZeroA(t);
+    int tempoAteChegar = geraNumeroAleatorioDeZeroA(t);
     /* Define o tempo Tr := tempo que ficará na festa 0 <= Tr <= r */
     int tempoDeFesta = geraNumeroAleatorioDeZeroA(r);
-    /* Espera Tt, usleep faz a thread dormir por 'x' microsegundos*/
-    usleep(tempoDeEspera * 1000);
+    /* Espera Tt, faz a thread dormir por 'tempoAteChegar' milissegundos*/
+    esperaEmMilissegundos(tempoAteChegar);
     /* Avisa que está na porta */
     printf("Aluno %d na porta.\n", id);
     /* Espera até a porta estar disponível */
@@ -46,8 +56,10 @@ void *aluno(void *_id) {
 }
 
 void *seguranca(void *param) {
-    printf("Sou o segurança\n");
     /* Define o tempo Tt := tempo até chegar, 0 <= Tt <= t */
+    int tempoAteChegar = geraNumeroAleatorioDeZeroA(t);
+    esperaEmMilissegundos(tempoAteChegar);
+    printf("Sou o segurança\n");
     /* Espera Tt */
     /* Enquanto o número de alunos que já participaram da festa < n */
     /*     Avisa que está na porta */
