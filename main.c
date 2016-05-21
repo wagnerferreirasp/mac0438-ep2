@@ -14,7 +14,7 @@
 #include <stdio.h>   /* printf */
 #include <stdlib.h>  /* EXIT_SUCCESS, EXIT_FAILURE, atoi, malloc, NULL, rand, srand */
 #include <pthread.h> /* pthread_t, pthread_create, pthread_join, pthread_mutex_t */
-#include <time.h>   /* time_t, time, nanosleep, struct timespec */
+#include <time.h>    /* time_t, time, nanosleep, struct timespec */
 
 /* Conversão de milissegundos para nanossegundos: 1 ms = 1000000 ns */
 #define MILI_PARA_NANO 1000000
@@ -22,6 +22,8 @@
 pthread_mutex_t mutex;
 int n, p, t, r, s;
 int *filaDeAlunos;
+int inicioDaFila, fimDaFila; //inicio = primeiro espaço ocupado, fim = primeiro espaço livre
+int alunosNaFesta, alunosQueJaParticiparam;
 
 int geraNumeroAleatorioDeZeroA(int limite) {
     return (rand() % limite);
@@ -44,15 +46,29 @@ void *aluno(void *_id) {
     esperaEmMilissegundos(tempoAteChegar);
     /* Avisa que está na porta */
     printf("Aluno %d na porta.\n", id);
+    /* Coloca o aluno na fila de alunos para entrar */
+    filaDeAlunos[fimDaFila++] = id;
+    /* Verifica se é o primeiro da fila */
+    while(filaDeAlunos[inicioDaFila] != id) {
+    }
     /* Espera até a porta estar disponível */
-
-    /*     espera ele sair */
+    pthread_mutex_lock(&mutex);
     /* Avisa que está na festa */
+    printf("Aluno %d na festa.\n", id);
+    /* Retira da fila */
+    inicioDaFila++;
+    /* Libera a porta */
+    pthread_mutex_unlock(&mutex);
     /* Incrementa o número de alunos na sala */
+    alunosNaFesta++;
     /* Espera Tr */
+    esperaEmMilissegundos(tempoDeFesta);
     /* Avisa que foi embora */
+    printf("Aluno %d vai embora.\n", id);
     /* Decrementa o número de alunos na sala */
+    alunosNaFesta--;
     /* Incrementa o número de alunos que já participaram da festa */
+    alunosQueJaParticiparam++;
 }
 
 void *seguranca(void *param) {
@@ -103,6 +119,7 @@ int main(int argc, char const *argv[])
     r = atoi(argv[4]); /*   <tempo-festa> */
     s = atoi(argv[5]); /*   <tempo-ronda> */
     srand (time(NULL));
+    alunosNaFesta = alunosQueJaParticiparam = 0;
 
     /* Verifica se os parâmetros são valores válidos */
     if (t < 0 || r < 0 || s < 0) {
@@ -119,6 +136,11 @@ int main(int argc, char const *argv[])
 
     /* Inicializa uma fila para representar a ordem de chegada dos alunos */
     filaDeAlunos = malloc(n * sizeof(int));
+    if (filaDeAlunos == NULL) {
+        printf("Falha ao alocar memória\n");
+        exit(EXIT_FAILURE);
+    }
+    inicioDaFila = fimDaFila = 0;
 
     /* Variáveis para índice, valores de retorno e id do aluno passado à thread */
     int i, falhou, *idAluno;
