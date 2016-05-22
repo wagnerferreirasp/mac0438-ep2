@@ -74,23 +74,36 @@ void *aluno(void *_id) {
 void *seguranca(void *param) {
     /* Define o tempo Tt := tempo até chegar, 0 <= Tt <= t */
     int tempoAteChegar = geraNumeroAleatorioDeZeroA(t);
-    esperaEmMilissegundos(tempoAteChegar);
-    printf("Sou o segurança\n");
+    int tempoEntreRondas;
     /* Espera Tt */
+    esperaEmMilissegundos(tempoAteChegar);
+    printf("Segurança em ronda\n");
     /* Enquanto o número de alunos que já participaram da festa < n */
-    /*     Avisa que está na porta */
-    /*     Se o número de alunos na sala = 0 */
-    /*         Bloqueia a entrada na sala */
-    /*         Avisa que vai inspecionar a sala */
-    /*     Senão Se o número de alunos na sala >= p */
-    /*         Bloqueia a entrada na sala */
-    /*         Avisa que vai expulsar os alunos */
-    /*         Espera até que o número de alunos na sala seja 0 */
-    /*     Avisa que está na ronda */
-    /*     Desbloqueia a entrada */
-    /*     Define o tempo 0 <= Ts <= S, o tempo de ronda */
-    /*     Espera Ts */
-
+    while (alunosQueJaParticiparam < n) {
+        /*     Avisa que está na porta */
+        pthread_mutex_lock(&mutex);
+        printf("Segurança na porta\n");
+        /*     Se o número de alunos na sala = 0 */
+        if (alunosNaFesta == 0) {
+            /*         Avisa que vai inspecionar a sala */
+            printf("Segurança inspeciona a sala.\n");
+        }
+        /*     Senão Se o número de alunos na sala >= p */
+        else if (alunosNaFesta >= p) {
+            /*         Avisa que vai expulsar os alunos */
+            printf("Segurança expulsa alunos.\n");
+            /*         Espera até que o número de alunos na sala seja 0 */
+            while(alunosNaFesta > 0) {}
+        }
+        /*     Avisa que está na ronda */
+        printf("Segurança em ronda\n");
+        /*     Desbloqueia a entrada */
+        pthread_mutex_unlock(&mutex);
+        /*     Define o tempo 0 <= Ts <= S, o tempo de ronda */
+        tempoEntreRondas = geraNumeroAleatorioDeZeroA(s);
+        /*     Espera Ts */
+        esperaEmMilissegundos(tempoEntreRondas);
+    }
 }
 
 void mostraUso() {
