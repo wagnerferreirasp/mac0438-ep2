@@ -79,7 +79,7 @@ void *seguranca(void *param) {
     esperaEmMilissegundos(tempoAteChegar);
     printf("Segurança em ronda\n");
     /* Enquanto o número de alunos que já participaram da festa < n */
-    while (alunosQueJaParticiparam < n) {
+    while (alunosQueJaParticiparam <= n) {
         /*     Avisa que está na porta */
         pthread_mutex_lock(&mutex);
         printf("Segurança na porta\n");
@@ -87,6 +87,10 @@ void *seguranca(void *param) {
         if (alunosNaFesta == 0) {
             /*         Avisa que vai inspecionar a sala */
             printf("Segurança inspeciona a sala.\n");
+            if (alunosQueJaParticiparam == n) {
+                pthread_mutex_unlock(&mutex);
+                break;
+            }
         }
         /*     Senão Se o número de alunos na sala >= p */
         else if (alunosNaFesta >= p) {
