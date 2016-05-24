@@ -22,7 +22,7 @@
     Para compilar o programa basta executar 'make' no terminal, dentro da pasta do projeto, para rodar o arquivo 'Makefile' incluso no projeto.
 
 -Execução:
-    Para executar o programa basta executar './EP2 n p t r s' no terminal, dentro da pasta do projeto, substituindo as letras 'n', 'p', 't', 'r' e 's' por números inteiros.
+    Para executar o programa basta executar './ep2 n p t r s' no terminal, dentro da pasta do projeto, substituindo as letras 'n', 'p', 't', 'r' e 's' por números inteiros.
 	n = numero total de convidados para a festa
 	p = numero mínimo de alunos na festa para o segurança esvaziar a sala
 	t = intervalo maximo de tempo dentre chegadas de convidados em ms
